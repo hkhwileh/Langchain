@@ -1,0 +1,34 @@
+# Ignore OS/system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python virtual environments
+venv/
+.env/
+*.env
+
+# Ignore log files
+*.log
+
+# Ignore compiled bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore node modules (JS projects)
+node_modules/
+
+# Ignore build or distribution folders
+build/
+dist/
+
+# Ignore all `.sh` files in any folder
+*.sh
+
+# Ignore a specific large file globally
+Miniconda3-latest-MacOSX-arm64.sh
+
+
+.vscode/launch.json
+.vscode/settings.json

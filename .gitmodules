@@ -1,0 +1,3 @@
+[submodule "udemy/langchain2"]
+	path = udemy/langchain2
+	url = https://github.com/hkhwileh/Langchain.git

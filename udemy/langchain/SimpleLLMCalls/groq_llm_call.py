@@ -114,7 +114,7 @@ def implement_query_model(model, prompt):
         str: The response content
     """
     # TODO: Your implementation here
-    pass
+    return model.invoke([{"role": "user", "content": prompt}]).content
 
 
 def implement_compare_models(prompt):

@@ -1,0 +1,28 @@
+name: react-agent-arabic
+description: Arabic-compatible ReAct agent prompt using Thought/Action/Observation pattern
+template_format: jinja2
+input_variables:
+  - tools
+  - tool_names
+  - input
+  - agent_scratchpad
+template: |
+  أجب عن الأسئلة التالية بأفضل ما يمكنك. لديك إمكانية الوصول إلى الأدوات التالية:
+
+  {{ tools }}
+
+  استخدم التنسيق التالي:
+
+  السؤال: السؤال الذي يجب أن تجيب عليه  
+  التفكير: فكّر في الخطوة التالية  
+  الإجراء: الإجراء الذي يجب اتخاذه، يجب أن يكون أحد [{{ tool_names }}]  
+  إدخال الإجراء: الإدخال الخاص بالإجراء  
+  الملاحظة: نتيجة الإجراء  
+  ... (يمكن تكرار التفكير/الإجراء/الإدخال/الملاحظة N مرات)  
+  التفكير: الآن أعرف الإجابة النهائية  
+  الإجابة النهائية: الإجابة النهائية على السؤال الأصلي
+
+  لنبدأ!
+
+  السؤال: {{ input }}
+  التفكير:{{ agent_scratchpad }}

@@ -7,9 +7,12 @@ from langchain.schema import AgentAction, AgentFinish
 from langchain.tools import Tool, tool
 from langchain.tools.render import render_text_description
 from langchain.schema.runnable import RunnableLambda
-from langchain.agents.output_parsers import ReActSingleInputOutputParser  # Import the missing parser
+from langchain.agents.output_parsers import (
+    ReActSingleInputOutputParser,
+)  # Import the missing parser
 from langchain.agents.format_scratchpad import format_log_to_str
 
+from callbacks import AgentCallbackHandler
 
 load_dotenv()
 
@@ -23,6 +26,7 @@ def get_text_length(text: str) -> int:
     )  # stripping away non alphabetic characters just in case
 
     return len(text)
+
 
 def find_tool_by_name(tools: List[Tool], tool_name: str) -> Tool:
     print(f"the")
@@ -63,33 +67,41 @@ if __name__ == "__main__":
         tool_names=", ".join([t.name for t in tools]),
     )
 
-    llm = ChatOpenAI(temperature=0, stop = ["\nObservation", "Observation"])
+    llm = ChatOpenAI(
+        temperature=0,
+        stop=["\nObservation", "Observation"],
+        callbacks=[AgentCallbackHandler()],
+    )
     intermediate_steps = []
 
-    agent = ({"input":lambda x :x["input"],
-              "agent_scratchpad":lambda x:format_log_to_str(x["agent_scratchpad"])} 
-             | prompt 
-             | llm 
-             | ReActSingleInputOutputParser()
+    agent = (
+        {
+            "input": lambda x: x["input"],
+            "agent_scratchpad": lambda x: format_log_to_str(x["agent_scratchpad"]),
+        }
+        | prompt
+        | llm
+        | ReActSingleInputOutputParser()
     )
-    agent_step : Union[AgentAction , AgentFinish] = agent.invoke({"input":"what is the text length if 'DOG' in characters ?",
-                                                                   "agent_scratchpad":intermediate_steps}
-                       )
-    print("first print ----------",agent_step)
-    print("first Agent is instance of agent action----------",isinstance(agent_step,AgentAction))
+    agent_step = ""
 
+    while not isinstance(agent_step, AgentFinish):
+        agent_step: Union[AgentAction, AgentFinish] = agent.invoke(
+            {
+                "input": "what is the text length if 'DOG' in characters ?",
+                "agent_scratchpad": intermediate_steps,
+            }
+        )
+        print(agent_step)
+        if isinstance(agent_step, AgentAction):
+            tool_name = agent_step.tool
+            tool_to_use = find_tool_by_name(tools, tool_name)
+            tool_input = agent_step.tool_input
+            observation = tool_to_use.func(str(tool_input))
+            print(f"{observation=}")
+            intermediate_steps.append((agent_step, str(observation)))
 
-    if isinstance (agent_step,AgentAction):
-        tool_name = agent_step.tool
-        tool_to_use = find_tool_by_name(tools,tool_name)
-        tool_input = agent_step.tool_input
-        observation = tool_to_use.func(str(tool_input))
-        print(f"{observation=}")
-        intermediate_steps.append((agent_step,str(observation)))
-
-    agent_step : Union[AgentAction , AgentFinish] = agent.invoke({"input":"what is the text length if 'DOG' in characters ?",
-                                                                   "agent_scratchpad":intermediate_steps})
-    
-    print("second Agent is instance of agent finish----------",isinstance(agent_step,AgentAction))
-
-
+    print(
+        "second Agent is instance of agent finish----------",
+        isinstance(agent_step, AgentAction),
+    )

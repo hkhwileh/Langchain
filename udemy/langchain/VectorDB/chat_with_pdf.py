@@ -3,7 +3,7 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings,OpenAI
 from langchain_community.vectorstores import FAISS
-
+import os
 load_dotenv()
 
 if __name__ =="__main__":
@@ -15,5 +15,6 @@ if __name__ =="__main__":
     print(doc[2])
 
     #start embedding
-    embedding = OpenAIEmbeddings()
-    vectorstore= FAISS.from_documents(doc,embedding)
+    embeddings = OpenAIEmbeddings(openai_api_type=os.getenv("OPENAI_API_KEY"))
+    vectorstore= FAISS.from_documents(doc,embeddings)
+    vectorstore.save_local("faiss_inex_react")

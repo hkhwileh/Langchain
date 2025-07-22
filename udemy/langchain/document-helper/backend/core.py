@@ -22,7 +22,13 @@ def run_llm(query:str):
     combine_docs_chain = create_stuff_documents_chain(chat,retrieval_qa_chat_prompt)
     retrival_chain = create_retrieval_chain(docsearch.as_retriever(),combine_docs_chain=combine_docs_chain)
     res = retrival_chain.invoke(input={"input":query})
-    print(res["answer"])
+    new_result = {
+        "query":res["input"],
+        "result":res["answer"],
+        "source_documents":res["context"],
+    }
+    return new_result
 
 if __name__=="__main__":
-    run_llm("what is langchain components")
+    res= run_llm("what is langchain components")
+    print(res["result"])
